@@ -83,6 +83,7 @@ void DetectAndExtractDescriptors(cv::Mat& float_img) {
   vl_sift_set_window_size(sift_filter, FLAGS_window_size);
 
   // 5. Process First Octave.
+  int octave_no = 1;
   int vl_status =
       vl_sift_process_first_octave(sift_filter, reinterpret_cast<float*>(float_img.data));
 
@@ -97,6 +98,9 @@ void DetectAndExtractDescriptors(cv::Mat& float_img) {
     const VlSiftKeypoint* vl_keypoints = vl_sift_get_keypoints(sift_filter);
     const int num_keypoints = vl_sift_get_nkeypoints(sift_filter);
 
+    LOG(INFO) << "Processing Octave : " << octave_no;
+    LOG(INFO) << "Octave Width : " << vl_sift_get_octave_width(sift_filter);
+    LOG(INFO) << "Octave Height : " << vl_sift_get_octave_height(sift_filter);
     LOG(INFO) << "Num Keypoints : " << num_keypoints;
 
     // Calc Orientation for keypoints detected.
@@ -122,7 +126,10 @@ void DetectAndExtractDescriptors(cv::Mat& float_img) {
       }
     }
     vl_status = vl_sift_process_next_octave(sift_filter);
+    octave_no = octave_no + 1;
   }
+
+  vl_sift_delete(sift_filter);
 }
 
 int main(int argc, char* argv[]) {
